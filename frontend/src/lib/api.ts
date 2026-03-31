@@ -1,4 +1,5 @@
-const API_BASE = '/api';
+const rawUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') || '';
+const API_BASE = rawUrl ? (rawUrl.endsWith('/api') ? rawUrl : `${rawUrl}/api`) : '/api';
 
 async function request(path: string, options?: RequestInit) {
   const res = await fetch(`${API_BASE}${path}`, {
