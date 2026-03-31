@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Client {
+  id            String         @id @default(uuid())
+  name          String
+  entityType    String         @default("pvt_ltd")
+  pan           String?
+  gstin         String?
+  createdAt     DateTime       @default(now())
+  
+  invoices      Invoice[]
+  summaries     GSTSummary[]
+  uploads       FileUpload[]
+  auditLogs     AuditLog[]
+  queries       CopilotQuery[]
+}
+
+model FileUpload {
+  id            String   @id @default(uuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id])
+  filename      String
+  storagePath   String
+  status        String   @default("pending") // pending, extracted, failed
+  createdAt     DateTime @default(now())
+
+  invoices      Invoice[]
+}
+
+model Invoice {
+  id               String            @id @default(uuid())
+  clientId         String
+  client           Client            @relation(fields: [clientId], references: [id])
+  fileId           String?
+  file             FileUpload?       @relation(fields: [fileId], references: [id])
+  invoiceNumber    String?
+  invoiceDate      DateTime?
+  partyName        String?
+  partyGstin       String?
+  amount           Float             @default(0)
+  cgst             Float             @default(0)
+  sgst             Float             @default(0)
+  igst             Float             @default(0)
+  invoiceType      String            @default("purchase") // sales, purchase
+  status           String            @default("clean")    // clean, flagged
+  
+  complianceIssues ComplianceIssue[]
+}
+
+model ComplianceIssue {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  type        String   // missing_gstin, incorrect_rate, duplicate
+  severity    String   // high, medium, low
+  message     String
+}
+
+model GSTSummary {
+  id              String   @id @default(uuid())
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id])
+  period          String   // e.g., 2024-04
+  totalSales      Float    @default(0)
+  totalPurchases  Float    @default(0)
+  outputGst       Float    @default(0)
+  inputGst        Float    @default(0)
+  netPayable      Float    @default(0)
+  carryForward    Float    @default(0)
+  createdAt       DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+  agentName   String
+  action      String
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model CopilotQuery {
+  id        String   @id @default(uuid())
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  query     String
+  response  String
+  createdAt DateTime @default(now())
+}

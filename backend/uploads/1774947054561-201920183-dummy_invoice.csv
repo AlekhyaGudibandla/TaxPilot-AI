@@ -1,0 +1,3 @@
+Invoice No,Date,Party Name,Party GSTIN,Amount,CGST,SGST,IGST,Invoice Type
+INV-X1,2024-04-10,Test Supplier,07AABCU9603R1ZM,1180,90,90,0,purchase
+INV-X2,2024-04-12,Test Customer,29XYZCU9603R1ZM,2360,180,180,0,sales

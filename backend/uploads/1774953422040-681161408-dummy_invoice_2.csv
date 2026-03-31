@@ -1,0 +1,4 @@
+invoice_number,invoice_date,vendor,gstin,amount,cgst,sgst,igst
+INV-001,2026-02-10,Amazon India,29ABCDE1234F1Z5,10000,900,900,0
+INV-002,2026-02-12,Flipkart Pvt Ltd,29XYZAB5678C1Z2,5000,450,450,0
+INV-003,2026-02-15,Uber India,07PQRSX1234Z5Y6,2000,0,0,360
