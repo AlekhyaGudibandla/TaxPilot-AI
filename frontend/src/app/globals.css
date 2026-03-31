@@ -5,16 +5,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg: #ffffff;
-  --bg-secondary: #fafafa;
-  --bg-tertiary: #f5f5f5;
-  --border: #e5e5e5;
-  --border-hover: #d4d4d4;
-  --text: #0a0a0a;
-  --text-secondary: #525252;
-  --text-tertiary: #a3a3a3;
-  --accent: #0a0a0a;
-  --accent-hover: #262626;
+  --bg: #EEF2ED;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #D8F3DC;
+  --border: #E5E7EB;
+  --border-hover: #D1D5DB;
+  --text: #1F2937;
+  --text-secondary: #374151;
+  --text-tertiary: #6B7280;
+  --accent: #1B4332;
+  --accent-hover: #40916C;
   --success: #16a34a;
   --warning: #d97706;
   --danger: #dc2626;
@@ -46,15 +46,17 @@ body {
 
 /* Card */
 .card {
-  background: var(--bg);
+  background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-top: 4px solid var(--accent);
+  border-radius: 6px;
   padding: 1.5rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1), 0 4px 8px -4px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 .card:hover {
   border-color: var(--border-hover);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 12px 24px -4px rgba(0,0,0,0.15), 0 4px 8px -4px rgba(0,0,0,0.06);
 }
 
 /* Button */
@@ -75,13 +77,13 @@ body {
   color: white;
   border-color: var(--accent);
 }
-.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .btn-secondary {
   background: transparent;
-  color: var(--text);
-  border-color: var(--border);
+  color: var(--accent);
+  border-color: var(--accent);
 }
-.btn-secondary:hover { background: var(--bg-tertiary); border-color: var(--border-hover); }
+.btn-secondary:hover { background: var(--bg-tertiary); border-color: var(--accent-hover); color: var(--accent-hover); }
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
@@ -104,7 +106,7 @@ body {
 }
 .input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(10,10,10,0.08);
+  box-shadow: 0 0 0 3px rgba(27,67,50,0.1);
 }
 
 /* Badge */
@@ -123,23 +125,34 @@ body {
 .badge-neutral { background: var(--bg-tertiary); color: var(--text-secondary); border-color: var(--border); }
 
 /* Table */
-.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.875rem; }
 .table th {
   text-align: left;
   padding: 0.75rem 1rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background-color: var(--bg-tertiary);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
 }
 .table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bg-tertiary);
+  padding: 1rem 1rem;
+  border-bottom: 1px solid var(--border);
   color: var(--text);
+  transition: background-color 0.15s ease-in-out;
 }
-.table tr:hover td { background: var(--bg-secondary); }
+.table td .font-mono, .table td.font-mono {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.table tr:hover td { 
+  background: var(--bg); 
+  cursor: pointer;
+}
 
 /* Stat card */
 .stat-value {
