@@ -1,0 +1,4 @@
+invoice_number,invoice_date,type,vendor,client,gstin,amount,cgst,sgst,igst
+PUR-001,2026-02-05,purchase,Amazon India,Ab Company,29ABCDE1234F1Z5,20000,1800,1800,0
+PUR-002,2026-02-10,purchase,Flipkart Pvt Ltd,Ab Company,29XYZAB5678C1Z2,15000,1350,1350,0
+SAL-001,2026-02-08,sale,Ab Company,Client A,29CLIENT1234Z5X1,10000,900,900,0

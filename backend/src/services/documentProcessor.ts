@@ -148,6 +148,14 @@ export async function processDocumentAsync(fileId: string, filePath: string, cli
     await prisma.fileUpload.update({ where: { id: fileId }, data: { status: 'extracted' } });
     await logAudit('DocumentProcessor', 'Extraction Complete', `Successfully extracted ${invoices.length} invoices.`, clientId);
 
+    // Auto-Trigger Compliance
+    try {
+        const { runComplianceChecks } = await import('./complianceAgent');
+        await runComplianceChecks(clientId);
+    } catch (complianceErr) {
+        console.error("Auto-compliance failed:", complianceErr);
+    }
+
     console.log(`Document ${fileId} parsed successfully. Found ${parsedData.invoices.length} invoices.`);
   } catch (error: any) {
     console.error(`Error processing document ${fileId}:`, error);

@@ -68,7 +68,11 @@ router.post('/workflow', async (req, res) => {
   }
 });
 
-// Copilot Query
+// Enterprise Autonomous Agent Setup: LangGraph Integration
+import { compiler } from '../agents/graph';
+import { HumanMessage } from '@langchain/core/messages';
+
+// Copilot Query - LangGraph Enabled
 router.post('/copilot', async (req, res) => {
   try {
     const { query, client_id } = req.body;
@@ -77,76 +81,50 @@ router.post('/copilot', async (req, res) => {
       return res.status(400).json({ error: 'Query is required' });
     }
 
-    // GATHER CONTEXT
-    let context = 'Global State:\n';
+    // Trigger Enterprise LangGraph with Memory Checkpointing
+    const threadId = client_id || "global-copilot-thread";
     
-    if (client_id) {
-      const dbClient = await prisma.client.findUnique({
-        where: { id: client_id },
-        include: {
-          invoices: true,
-          summaries: true,
-          uploads: true
-        }
-      });
-      if (dbClient) {
-        context += `Client ${dbClient.name} (${dbClient.entityType})\n`;
-        context += `Total Invoices: ${dbClient.invoices.length}\n`;
-        const flaggedInvoices = dbClient.invoices.filter((i: any) => i.status === 'flagged');
-        context += `Flagged/Non-Compliant Invoices: ${flaggedInvoices.length}\n`;
-        if (dbClient.summaries.length > 0) {
-          const s = dbClient.summaries[dbClient.summaries.length - 1];
-          context += `Latest GST Summary (Period ${s.period}): Net Payable ₹${s.netPayable}, Output Tax ₹${s.outputGst}, eligible ITC claimed ₹${s.inputGst}\n`;
-        }
-      }
-    } else {
-      const clientsCount = await prisma.client.count();
-      const returnsCount = await prisma.gSTSummary.count();
-      context += `System has ${clientsCount} clients and processed ${returnsCount} GST summaries.`;
+    const config = { configurable: { thread_id: threadId } };
+    const graphState = await compiler.invoke(
+      { messages: [new HumanMessage(query)] },
+      config
+    );
+    
+    // Sniff the state to detect if the Graph is in Human Confirmation Mode
+    const logs = (graphState.execution_log || []).join("\n- ");
+    const nextNode = await compiler.getState(config);
+    const isHalted = nextNode.next?.includes("commit_computation");
+
+    const lastMsg = graphState.messages[graphState.messages.length - 1];
+    let answerStr = typeof lastMsg?.content === 'string' ? lastMsg.content : "Executed workflow safely.";
+    
+    if (isHalted) {
+       answerStr = "⚠️ **AUTHORIZATION HALT: DRAFT MODE**\n" + answerStr + "\n\n*Type 'Yes' to proceed with PostgreSQL Database Commit.*";
     }
 
-    let answerStr = "AI is currently offline or GROQ_API_KEY is invalid.";
-    
-    try {
-      const model = new ChatGroq({
-        apiKey: process.env.GROQ_API_KEY || "invalid-key",
-        modelName: "llama-3.3-70b-versatile",
-        temperature: 0.3,
-      });
+    // Append the diagnostic trace for developer visibility
+    answerStr = answerStr + "\n\n**Agent Execution Trace:**\n- " + logs;
 
-      const systemPrompt = `
-        You are TaxPilot AI Copilot for Indian Chartered Accountants.
-        Use ₹ for currency. Keep it professional and concise (under 4 sentences).
-        Use the provided database context to answer accurately.
-
-        DATABASE CONTEXT:
-        ${context}
-      `;
-
-      const response = await model.invoke([
-        ["system", systemPrompt],
-        ["user", query]
-      ]);
-      
-      answerStr = typeof response.content === 'string' ? response.content : "No answer available.";
-    } catch (e: any) {
-      console.error("Copilot AI Error:", e.message);
-      // Fallback response for MVP
-      answerStr = `[MOCK AI] I see you have ${context.length} bytes of context. Please set a valid GROQ_API_KEY to enable Chat.`;
-    }
-
-    if (client_id) {
-        await prisma.copilotQuery.create({
-            data: {
-                clientId: client_id,
-                query: query,
-                response: answerStr
+    if (client_id && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(client_id)) {
+        try {
+            const clientExists = await prisma.client.findUnique({ where: { id: client_id } });
+            if (clientExists) {
+                await prisma.copilotQuery.create({
+                    data: {
+                        clientId: client_id,
+                        query: query,
+                        response: answerStr
+                    }
+                });
             }
-        });
+        } catch (e) {
+            console.error("Failed to log query:", e);
+        }
     }
 
-    res.json({ answer: answerStr, data: { context } });
+    res.json({ answer: answerStr, data: { context: logs } });
   } catch (error: any) {
+    console.error("Agent Error:", error);
     res.status(500).json({ error: error.message });
   }
 });

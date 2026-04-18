@@ -1,0 +1,4 @@
+invoice_number,invoice_date,type,vendor,client,gstin,amount,cgst,sgst,igst
+SAL-001,2026-02-08,sale,Ab Company,Client A,29CLIENT1234Z5X1,20000,1800,1800,0
+SAL-002,2026-02-18,sale,Ab Company,Client B,27CLIENT5678Z5X2,15000,0,0,2700
+SAL-003,2026-02-25,sale,Ab Company,Client C,09CLIENT9999Z5X3,8000,720,720,0

@@ -1,0 +1,6 @@
+invoice_number,invoice_date,type,vendor,client,gstin,amount,cgst,sgst,igst
+PUR-001,2026-02-05,purchase,Amazon India,Ab Company,29ABCDE1234F1Z5,10000,900,900,0
+PUR-001,2026-02-05,purchase,Amazon India,Ab Company,29ABCDE1234F1Z5,10000,900,900,0
+PUR-002,2026-02-10,purchase,Local Vendor,Ab Company,,3000,270,270,0
+SAL-001,2026-02-08,sale,Ab Company,Client A,INVALIDGSTIN,20000,1800,1800,0
+SAL-002,2026-02-18,sale,Ab Company,Client B,27CLIENT5678Z5X2,15000,0,0,2700
